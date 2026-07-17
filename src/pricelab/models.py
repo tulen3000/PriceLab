@@ -5,7 +5,6 @@ from typing import Literal
 
 import pandas as pd
 
-CHECK_STATUSES = ("roll candidate", "zero baseline", "few candles")
 SearchPoint = str
 Status = Literal["roll candidate", "zero baseline", "few candles"]
 

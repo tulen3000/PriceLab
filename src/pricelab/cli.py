@@ -6,7 +6,15 @@ from pathlib import Path
 
 from pricelab.adjuster import apply_back_adjustment, build_adjustment_events
 from pricelab.detector import run_check
-from pricelab.io import default_adjust_output_path, default_check_output_path, load_params, load_quotes, load_roll_datetimes_only, save_check_results, save_quotes
+from pricelab.io import (
+    default_adjust_output_path,
+    default_check_output_path,
+    load_params,
+    load_quotes,
+    load_roll_datetimes_only,
+    save_check_results,
+    save_quotes,
+)
 from pricelab.report import build_adjust_summary, build_check_summary
 
 

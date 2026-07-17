@@ -4,13 +4,18 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pricelab"
-version = "0.2.1"
+version = "1.0.0"
 description = "Console utility for detecting and back-adjusting futures roll gaps"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
   "pandas>=2.2.0",
   "PyYAML>=6.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
 ]
 
 [project.scripts]
@@ -24,3 +29,6 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
+markers = [
+  "real_data: integration tests that use local ignored market data",
+]

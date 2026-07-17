@@ -1,4 +1,4 @@
-baselineDeep: 200
+baselineDeep: 300
 gapMultiplier: 100
 searchPoints:
   - day_change
