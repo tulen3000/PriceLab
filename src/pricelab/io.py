@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from pathlib import Path
 from typing import Iterable
 
@@ -11,6 +12,16 @@ from pricelab.models import CheckResult, PriceLabConfig
 EXPECTED_COLUMNS = ["<DATE>", "<TIME>", "<OPEN>", "<HIGH>", "<LOW>", "<CLOSE>"]
 PRICE_COLUMNS = ["<OPEN>", "<HIGH>", "<LOW>", "<CLOSE>"]
 SERVICE_COLUMNS = {"dt", "trading_date"}
+CHECK_RESULT_COLUMNS = [
+    "roll_datetime",
+    "cur_close",
+    "next_open",
+    "signed_gap",
+    "gap_abs",
+    "left_baseline",
+    "threshold",
+    "status",
+]
 
 
 def load_quotes(quotes_path: Path) -> pd.DataFrame:
@@ -69,8 +80,14 @@ def load_params(params_path: Path) -> PriceLabConfig:
     for point in search_points:
         if point == "day_change":
             continue
-        if point.startswith("fixed_time = ") and len(point.split("=", 1)[1].strip()) == 5:
-            continue
+        if point.startswith("fixed_time = "):
+            fixed_time = point.split("=", 1)[1].strip()
+            try:
+                if len(fixed_time) == 5:
+                    datetime.strptime(fixed_time, "%H:%M")
+                    continue
+            except ValueError:
+                pass
         raise ValueError(f"Unsupported search point: {point}")
 
     return PriceLabConfig(
@@ -118,7 +135,7 @@ def save_check_results(results: list[CheckResult], output_path: Path) -> None:
                 "status": item.status,
             }
         )
-    pd.DataFrame(rows).to_csv(output_path, index=False)
+    pd.DataFrame(rows, columns=CHECK_RESULT_COLUMNS).to_csv(output_path, index=False)
 
 
 def load_roll_datetimes_only(rolls_path: Path) -> list[pd.Timestamp]:

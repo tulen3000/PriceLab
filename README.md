@@ -1,30 +1,65 @@
-# PriceLab v2
+# PriceLab
 
-Реализация по `docs/mini_spec_v2.md`.
+Консольная утилита для поиска склеек в непрерывном фьючерсном ряду и
+back-adjustment подтверждённых склеек. Входные данные — MT5 CSV/TSV.
 
-## Зависимости
+PriceLab не принимает торговое решение автоматически:
 
-- pandas
-- PyYAML
+1. `check` находит кандидатов по настроенным точкам поиска и размеру гэпа;
+2. пользователь выбирает подтверждённые даты;
+3. `adjust` корректирует историческую часть OHLC-ряда.
+
+Точное ожидаемое поведение описано в
+[спецификации](docs/spec.md).
+
+## Установка
+
+Требуется Python 3.11 или новее.
+
+```powershell
+python -m pip install -e .
+```
 
 ## Запуск
 
-Если `src` уже добавлен в `PYTHONPATH`:
-
 ```powershell
-python -m pricelab check --quotes rates\ALLFUTEu_M1_2025.csv --params rates\params.yaml
-python -m pricelab adjust --quotes rates\ALLFUTEu_M1_2025.csv --rolls rates\ALLFUTEu_M1_2025_roll_candidates.csv
+python -m pricelab check `
+  --quotes rates\Si\SiM6_M1_2026.csv `
+  --params rates\params.yaml
+
+python -m pricelab adjust `
+  --quotes rates\Si\SiM6_M1_2026.csv `
+  --rolls rates\Si\SiM6_M1_2026_roll_candidates.csv
 ```
 
-## Пример params.yaml
+Пример параметров:
 
 ```yaml
-baselineDeep: 50
-gapMultiplier: 5
+baselineDeep: 300
+gapMultiplier: 100
 searchPoints:
   - day_change
   - fixed_time = 13:59
 ```
 
+`rates/params.yaml` — рабочий конфиг. Его значения подбираются под конкретный
+фьючерс и не используются тестами как неизменный эталон.
 
-Spec used in this build: `docs/mini_spec_v2_1.md`
+## Проверки
+
+```powershell
+python -m pytest -q
+```
+
+Для запуска тестов нужен необязательный пакет разработки:
+
+```powershell
+python -m pip install -e ".[dev]"
+```
+
+Публичные проверки используют небольшие автономные наборы данных.
+Дополнительный интеграционный тест запускается на локальном
+`rates/Si/SiM6_M1_2026.csv`; при отсутствии файла они пропускаются.
+
+Соглашение о качестве и границы рефакторинга описаны в
+[docs/code_quality.md](docs/code_quality.md).
