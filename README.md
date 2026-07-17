@@ -61,5 +61,4 @@ python -m pip install -e ".[dev]"
 Дополнительный интеграционный тест запускается на локальном
 `rates/Si/SiM6_M1_2026.csv`; при отсутствии файла они пропускаются.
 
-Соглашение о качестве и границы рефакторинга описаны в
-[docs/code_quality.md](docs/code_quality.md).
+Соглашение о качестве кода описано в [docs/code_quality.md](docs/code_quality.md).
