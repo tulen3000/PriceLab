@@ -1,38 +1,43 @@
 # PriceLab
 
-Консольная утилита для поиска склеек в непрерывном фьючерсном ряду и
-back-adjustment подтверждённых склеек. Входные данные — MT5 CSV/TSV.
+PriceLab is a command-line utility for detecting roll gaps in continuous
+futures data and back-adjusting confirmed rolls. It works with MT5 CSV/TSV
+exports.
 
-PriceLab не принимает торговое решение автоматически:
+PriceLab does not make the final decision automatically:
 
-1. `check` находит кандидатов по настроенным точкам поиска и размеру гэпа;
-2. пользователь выбирает подтверждённые даты;
-3. `adjust` корректирует историческую часть OHLC-ряда.
+1. `check` finds roll candidates at configured search points;
+2. the user selects the confirmed roll dates;
+3. `adjust` shifts historical OHLC values to remove the confirmed gaps.
 
-Точное ожидаемое поведение описано в
-[спецификации](docs/spec.md).
+See the [English specification](docs/spec.en.md) or the
+[full original specification in Russian](docs/spec.ru.md).
 
-## Установка
+## Installation
 
-Требуется Python 3.11 или новее.
+Python 3.11 or newer is required.
 
 ```powershell
 python -m pip install -e .
 ```
 
-## Запуск
+The repository owner normally runs PriceLab without installation. VS Code adds
+`src` to `PYTHONPATH` through a local `.vscode/settings.json`. Editable
+installation is provided as a portable option for repository visitors.
+
+## Usage
 
 ```powershell
 python -m pricelab check `
-  --quotes rates\Si\SiM6_M1_2026.csv `
+  --quotes rates\Si\M1_2026.csv `
   --params rates\params.yaml
 
 python -m pricelab adjust `
-  --quotes rates\Si\SiM6_M1_2026.csv `
-  --rolls rates\Si\SiM6_M1_2026_roll_candidates.csv
+  --quotes rates\Si\M1_2026.csv `
+  --rolls rates\Si\M1_2026_roll_candidates.csv
 ```
 
-Пример параметров:
+Example configuration:
 
 ```yaml
 baselineDeep: 300
@@ -42,22 +47,27 @@ searchPoints:
   - fixed_time = 13:59
 ```
 
-`rates/params.yaml` — рабочий конфиг. Его значения подбираются под конкретный
-фьючерс и не используются тестами как неизменный эталон.
+`rates/params.yaml` is a working configuration. Its values are tuned for a
+particular futures contract and are not used by the tests as a fixed reference.
 
-## Проверки
+## Tests
 
-```powershell
-python -m pytest -q
-```
-
-Для запуска тестов нужен необязательный пакет разработки:
+Install the optional development dependency and run pytest:
 
 ```powershell
 python -m pip install -e ".[dev]"
+python -m pytest -q
 ```
 
-`rates/Si/SiM6_M1_2026.csv` намеренно включён в репозиторий как эталонный
-набор реальных данных для проверки полного сценария `check → adjust`.
+`rates/Si/M1_2026.csv` is intentionally included as a real reference dataset
+for the complete `check → adjust` test scenario.
 
-Соглашение о качестве кода описано в [docs/code_quality.md](docs/code_quality.md).
+## Engineering approach
+
+The project favors correctness, KISS and clarity over architecture for its own
+sake. The detailed [code quality agreement](docs/code_quality.md) is currently
+maintained in Russian.
+
+## License
+
+PriceLab is released under the [0BSD license](LICENSE).

@@ -9,3 +9,4 @@ venv/
 .vscode/
 
 rates/**/*.csv
+!rates/Si/M1_2026.csv

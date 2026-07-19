@@ -9,7 +9,7 @@ import pytest
 from pricelab.cli import cmd_adjust, cmd_check
 from pricelab.io import PRICE_COLUMNS, load_quotes
 
-REAL_QUOTES = Path(__file__).parents[1] / "rates" / "Si" / "SiM6_M1_2026.csv"
+REAL_QUOTES = Path(__file__).parents[1] / "rates" / "Si" / "M1_2026.csv"
 
 pytestmark = pytest.mark.real_data
 
@@ -20,7 +20,7 @@ def test_si_reference_workflow(tmp_path: Path, capsys: pytest.CaptureFixture[str
 
     params = tmp_path / "params.yaml"
     candidates = tmp_path / "roll_candidates.csv"
-    adjusted_quotes = tmp_path / "SiM6_M1_2026_rolled.csv"
+    adjusted_quotes = tmp_path / "M1_2026_rolled.csv"
     params.write_text(
         "\n".join(
             [
