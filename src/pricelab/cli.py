@@ -25,7 +25,7 @@ def cmd_check(args: argparse.Namespace) -> int:
     df = load_quotes(quotes_path)
     config = load_params(params_path)
     results, summary = run_check(df=df, config=config)
-    save_check_results(results, output_path)
+    save_check_results(results, output_path, int(df.attrs["price_digits"]), config.gap_multiplier)
     print(build_check_summary(summary, str(output_path)))
     return 0
 
@@ -40,7 +40,7 @@ def cmd_adjust(args: argparse.Namespace) -> int:
     events = build_adjustment_events(df=df, roll_datetimes=roll_datetimes)
     adjusted = apply_back_adjustment(df=df, events=events)
     save_quotes(adjusted, output_path)
-    print(build_adjust_summary(events, str(output_path)))
+    print(build_adjust_summary(events, str(output_path), int(df.attrs["price_digits"])))
     return 0
 
 

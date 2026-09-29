@@ -1,8 +1,7 @@
 # PriceLab
 
 PriceLab is a command-line utility for detecting roll gaps in continuous
-futures data and back-adjusting confirmed rolls. It works with MT5 CSV/TSV
-exports.
+futures data and back-adjusting confirmed rolls. It processes CSV/TSV OHLC time-series exports.
 
 PriceLab does not make the final decision automatically:
 

@@ -29,6 +29,7 @@ def load_quotes(quotes_path: Path) -> pd.DataFrame:
         raise FileNotFoundError(f"Quotes file not found: {quotes_path}")
     try:
         df = pd.read_csv(quotes_path, sep=None, engine="python")
+        sample = pd.read_csv(quotes_path, sep=None, engine="python", dtype=str, nrows=1)
     except Exception as exc:
         raise ValueError(f"Cannot read quotes file: {quotes_path}") from exc
 
@@ -37,6 +38,8 @@ def load_quotes(quotes_path: Path) -> pd.DataFrame:
         raise ValueError(f"Quotes file is missing required columns: {missing}")
 
     result = df.copy()
+    price_text = "" if sample.empty else str(sample.at[0, "<OPEN>"]).strip()
+    result.attrs["price_digits"] = len(price_text.partition(".")[2])
     result["dt"] = pd.to_datetime(result["<DATE>"] + " " + result["<TIME>"], format="%Y.%m.%d %H:%M:%S", errors="raise")
     result["trading_date"] = pd.to_datetime(result["<DATE>"], format="%Y.%m.%d", errors="raise")
     for col in PRICE_COLUMNS:
@@ -120,7 +123,12 @@ def _parse_env_file(path: Path) -> dict[str, object]:
     return data
 
 
-def save_check_results(results: list[CheckResult], output_path: Path) -> None:
+def save_check_results(
+    results: list[CheckResult],
+    output_path: Path,
+    price_digits: int,
+    gap_multiplier: float,
+) -> None:
     rows: list[dict[str, object]] = []
     for item in results:
         rows.append(
@@ -135,7 +143,12 @@ def save_check_results(results: list[CheckResult], output_path: Path) -> None:
                 "status": item.status,
             }
         )
-    pd.DataFrame(rows, columns=CHECK_RESULT_COLUMNS).to_csv(output_path, index=False)
+    result_digits = price_digits + 1 + _decimal_places(gap_multiplier)
+    pd.DataFrame(rows, columns=CHECK_RESULT_COLUMNS).to_csv(
+        output_path,
+        index=False,
+        float_format=lambda value: _format_float(value, result_digits),
+    )
 
 
 def load_roll_datetimes_only(rolls_path: Path) -> list[pd.Timestamp]:
@@ -170,7 +183,18 @@ def _iter_non_empty_lines(path: Path) -> Iterable[str]:
 
 def save_quotes(df: pd.DataFrame, output_path: Path) -> None:
     export_columns = [column for column in df.columns if column not in SERVICE_COLUMNS]
-    df[export_columns].to_csv(output_path, sep="\t", index=False)
+    digits = int(df.attrs["price_digits"])
+    df[export_columns].to_csv(output_path, sep="\t", index=False, float_format=f"%.{digits}f")
+
+
+def _decimal_places(value: float) -> int:
+    text = str(value).rstrip("0").rstrip(".")
+    return len(text.partition(".")[2])
+
+
+def _format_float(value: float, digits: int) -> str:
+    text = f"{value:.{digits}f}".rstrip("0").rstrip(".")
+    return "0" if text == "-0" else text
 
 
 def default_check_output_path(quotes_path: Path) -> Path:
