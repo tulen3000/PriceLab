@@ -16,16 +16,16 @@ def build_check_summary(summary: SummaryCounts, output_path: str) -> str:
     )
 
 
-def build_adjust_summary(events: list[AdjustmentEvent], output_path: str) -> str:
+def build_adjust_summary(events: list[AdjustmentEvent], output_path: str, price_digits: int) -> str:
     lines = [f"processed_roll_datetime={len(events)}"]
     for event in sorted(events, key=lambda item: item.roll_datetime, reverse=True):
-        lines.append(f"{event.roll_datetime.strftime('%Y-%m-%d %H:%M:%S')} gap={_fmt_number(event.signed_gap)}")
+        lines.append(f"{event.roll_datetime.strftime('%Y-%m-%d %H:%M:%S')} gap={_fmt_number(event.signed_gap, price_digits)}")
     lines.append(f"output={output_path}")
     return "\n".join(lines)
 
 
-def _fmt_number(value: float) -> str:
+def _fmt_number(value: float, price_digits: int) -> str:
     value = float(value)
     if value.is_integer():
         return str(int(round(value)))
-    return f"{value:.6f}"
+    return f"{value:.{price_digits}f}"

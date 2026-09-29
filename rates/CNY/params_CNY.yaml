@@ -1,5 +1,5 @@
 baselineDeep: 100
-gapMultiplier: 20
+gapMultiplier: 15
 searchPoints:
   - day_change
   - fixed_time = 13:59
